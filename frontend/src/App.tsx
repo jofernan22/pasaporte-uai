@@ -1,4 +1,4 @@
-﻿function App() {
+function App() {
   return (
     <div style={{minHeight: '100vh', background: 'linear-gradient(to bottom right, #1e3a8a, #1e40af)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'}}>
       <div style={{background: 'white', borderRadius: '20px', padding: '40px', maxWidth: '500px', textAlign: 'center'}}>
