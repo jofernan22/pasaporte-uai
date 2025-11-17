@@ -320,8 +320,8 @@ MIT License - Ver [LICENSE](LICENSE) para más detalles.
 
 ## 👥 Autores
 
-- **Desarrollo Inicial** - Claude (Anthropic)
-- **Cliente** - Universidad Adolfo Ibáñez
+- **Desarrollo Inicial** - Jonathan Fernando Muñoz Alvarez
+- **Cliente** - Dirección de Relaciones Internacionales-Universidad Adolfo Ibáñez
 
 ---
 
@@ -336,7 +336,7 @@ MIT License - Ver [LICENSE](LICENSE) para más detalles.
 ## 📞 Soporte
 
 Para soporte y preguntas:
-- 📧 Email: internacionalizacion@uai.cl
+- 📧 Email: jonathan.m.a@live.com
 - 📚 Documentación: [docs/](docs/)
 - 🐛 Reportar bugs: [GitHub Issues](https://github.com/tu-org/pasaporte-uai/issues)
 
