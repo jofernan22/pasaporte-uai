@@ -1,13 +1,67 @@
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { supabase } from './lib/supabase'
+import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
+
+interface Session {
+  access_token: string
+  user: {
+    id: string
+    email?: string
+  }
+}
+
 function App() {
-  return (
-    <div style={{minHeight: '100vh', background: 'linear-gradient(to bottom right, #1e3a8a, #1e40af)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'}}>
-      <div style={{background: 'white', borderRadius: '20px', padding: '40px', maxWidth: '500px', textAlign: 'center'}}>
-        <h1 style={{fontSize: '2.5rem', color: '#1e3a8a', marginBottom: '20px'}}>Pasaporte Digital UAI</h1>
-        <div style={{fontSize: '4rem', marginBottom: '20px'}}>🌍</div>
-        <p style={{color: '#666', marginBottom: '30px'}}>Sistema en construcción</p>
-        <p style={{fontSize: '0.875rem', color: '#999'}}>Universidad Adolfo Ibáñez</p>
+  const [session, setSession] = useState<Session | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    // Obtener sesión actual
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session as Session | null)
+      setLoading(false)
+    })
+
+    // Escuchar cambios en la autenticación
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event: string, session: Session | null) => {
+      setSession(session)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-900 to-blue-700 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-4">🌍</div>
+          <p className="text-white text-xl">Cargando...</p>
+        </div>
       </div>
-    </div>
+    )
+  }
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route 
+          path="/login" 
+          element={!session ? <Login /> : <Navigate to="/dashboard" />} 
+        />
+        <Route 
+          path="/dashboard" 
+          element={session ? <Dashboard /> : <Navigate to="/login" />} 
+        />
+        <Route 
+          path="/" 
+          element={<Navigate to={session ? "/dashboard" : "/login"} />} 
+        />
+      </Routes>
+    </BrowserRouter>
   )
 }
+
 export default App
