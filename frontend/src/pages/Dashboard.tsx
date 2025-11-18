@@ -19,9 +19,19 @@ interface UserData {
   career?: string
 }
 
+interface Activity {
+  id: string
+  type: string
+  country: string
+  institution: string
+  status: string
+  start_date: string
+}
+
 export default function Dashboard() {
   const [userData, setUserData] = useState<UserData | null>(null)
   const [stats, setStats] = useState<UserStats | null>(null)
+  const [recentActivities, setRecentActivities] = useState<Activity[]>([])
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
@@ -60,6 +70,18 @@ export default function Dashboard() {
         setStats(userStats)
       }
 
+      // Obtener últimas 3 actividades
+      const { data: activities } = await supabase
+        .from('activities')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(3)
+
+      if (activities) {
+        setRecentActivities(activities)
+      }
+
     } catch (error) {
       console.error('Error loading data:', error)
     } finally {
@@ -96,6 +118,29 @@ export default function Dashboard() {
     }
   }
 
+  const getActivityTypeLabel = (type: string) => {
+    const types: { [key: string]: string } = {
+      exchange: 'Intercambio',
+      service: 'Servicio',
+      competition: 'Competencia',
+      conference: 'Conferencia',
+      research: 'Investigación',
+      internship: 'Pasantía',
+      volunteer: 'Voluntariado',
+      course: 'Curso',
+    }
+    return types[type] || type
+  }
+
+  const getStatusBadge = (status: string) => {
+    const config: { [key: string]: { label: string; color: string } } = {
+      pending: { label: 'Pendiente', color: 'bg-yellow-100 text-yellow-800' },
+      approved: { label: 'Aprobada', color: 'bg-green-100 text-green-800' },
+      rejected: { label: 'Rechazada', color: 'bg-red-100 text-red-800' },
+    }
+    return config[status] || { label: status, color: 'bg-gray-100 text-gray-800' }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -120,7 +165,7 @@ export default function Dashboard() {
                   Pasaporte Digital UAI
                 </h1>
                 <p className="text-sm text-gray-600">
-                  ¡Bienvenido, {userData?.first_name}!
+                  ¡Bienvenido, {userData?.first_name || 'Estudiante'}!
                 </p>
               </div>
             </div>
@@ -159,53 +204,41 @@ export default function Dashboard() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-          {/* Total Points */}
           <div className="bg-white rounded-xl shadow-md p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">Puntos Totales</p>
-                <p className="text-3xl font-bold text-blue-900">
-                  {stats?.total_points || 0}
-                </p>
+                <p className="text-3xl font-bold text-blue-900">{stats?.total_points || 0}</p>
               </div>
               <div className="text-4xl">⭐</div>
             </div>
           </div>
 
-          {/* Total Badges */}
           <div className="bg-white rounded-xl shadow-md p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">Badges Obtenidos</p>
-                <p className="text-3xl font-bold text-purple-900">
-                  {stats?.total_badges || 0}
-                </p>
+                <p className="text-3xl font-bold text-purple-900">{stats?.total_badges || 0}</p>
               </div>
               <div className="text-4xl">🏆</div>
             </div>
           </div>
 
-          {/* Total Activities */}
           <div className="bg-white rounded-xl shadow-md p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">Actividades</p>
-                <p className="text-3xl font-bold text-green-900">
-                  {stats?.total_activities || 0}
-                </p>
+                <p className="text-3xl font-bold text-green-900">{stats?.total_activities || 0}</p>
               </div>
               <div className="text-4xl">📚</div>
             </div>
           </div>
 
-          {/* Countries Visited */}
           <div className="bg-white rounded-xl shadow-md p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">Países Visitados</p>
-                <p className="text-3xl font-bold text-orange-900">
-                  {stats?.countries_visited || 0}
-                </p>
+                <p className="text-3xl font-bold text-orange-900">{stats?.countries_visited || 0}</p>
               </div>
               <div className="text-4xl">🌍</div>
             </div>
@@ -214,30 +247,65 @@ export default function Dashboard() {
 
         {/* Quick Actions */}
         <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Acciones Rápidas
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Acciones Rápidas</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button className="flex items-center justify-center space-x-2 bg-blue-50 hover:bg-blue-100 text-blue-700 px-4 py-3 rounded-lg transition-colors">
+            <button 
+              onClick={() => navigate('/activities/new')}
+              className="flex items-center justify-center space-x-2 bg-blue-50 hover:bg-blue-100 text-blue-700 px-4 py-3 rounded-lg transition-colors"
+            >
               <span className="text-xl">➕</span>
               <span className="font-medium">Nueva Actividad</span>
             </button>
-            <button className="flex items-center justify-center space-x-2 bg-purple-50 hover:bg-purple-100 text-purple-700 px-4 py-3 rounded-lg transition-colors">
-              <span className="text-xl">🏆</span>
-              <span className="font-medium">Ver Badges</span>
+            <button 
+              onClick={() => navigate('/activities')}
+              className="flex items-center justify-center space-x-2 bg-purple-50 hover:bg-purple-100 text-purple-700 px-4 py-3 rounded-lg transition-colors"
+            >
+              <span className="text-xl">📚</span>
+              <span className="font-medium">Mis Actividades</span>
             </button>
             <button className="flex items-center justify-center space-x-2 bg-green-50 hover:bg-green-100 text-green-700 px-4 py-3 rounded-lg transition-colors">
-              <span className="text-xl">👤</span>
-              <span className="font-medium">Editar Perfil</span>
+              <span className="text-xl">🏆</span>
+              <span className="font-medium">Ver Badges</span>
             </button>
           </div>
         </div>
 
+        {/* Recent Activities */}
+        {recentActivities.length > 0 && (
+          <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Actividades Recientes</h3>
+              <button 
+                onClick={() => navigate('/activities')}
+                className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+              >
+                Ver todas →
+              </button>
+            </div>
+            <div className="space-y-3">
+              {recentActivities.map((activity) => (
+                <div key={activity.id} className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-semibold text-gray-900">{getActivityTypeLabel(activity.type)}</h4>
+                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusBadge(activity.status).color}`}>
+                          {getStatusBadge(activity.status).label}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600">{activity.institution}</p>
+                      <p className="text-xs text-gray-500 mt-1">🌍 {activity.country}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Progress Section */}
         <div className="bg-white rounded-xl shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Progreso hacia Próximo Nivel
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Progreso hacia Próximo Nivel</h3>
           <div className="space-y-2">
             <div className="flex justify-between text-sm text-gray-600">
               <span>{getLevelName(stats?.level || 'explorer')}</span>
