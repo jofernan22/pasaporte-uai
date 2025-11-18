@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
 import Login from './pages/Login'
+import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 
 interface Session {
@@ -50,6 +51,10 @@ function App() {
         <Route 
           path="/login" 
           element={!session ? <Login /> : <Navigate to="/dashboard" />} 
+        />
+        <Route 
+          path="/register" 
+          element={!session ? <Register /> : <Navigate to="/dashboard" />} 
         />
         <Route 
           path="/dashboard" 
