@@ -277,7 +277,7 @@ export default function Register() {
         {/* Footer */}
         <div className="mt-8 pt-6 border-t border-gray-200 text-center text-xs text-gray-500">
           <p>Universidad Adolfo Ibáñez</p>
-          <p>Dirección de Relaciones Internacionales</p>
+          <p>Oficina de Internacionalización</p>
         </div>
       </div>
     </div>

@@ -4,8 +4,6 @@ import { supabase } from './lib/supabase'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
-import NewActivity from './pages/NewActivity'
-import MyActivities from './pages/MyActivities'
 
 interface Session {
   access_token: string
@@ -61,14 +59,6 @@ function App() {
         <Route 
           path="/dashboard" 
           element={session ? <Dashboard /> : <Navigate to="/login" />} 
-        />
-        <Route 
-          path="/activities" 
-          element={session ? <MyActivities /> : <Navigate to="/login" />} 
-        />
-        <Route 
-          path="/activities/new" 
-          element={session ? <NewActivity /> : <Navigate to="/login" />} 
         />
         <Route 
           path="/" 
